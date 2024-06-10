@@ -29,7 +29,9 @@ jobs:
         run: bash scripts/run_tests.sh
 
       - name: Upload coverge reports
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   run-linters:
     runs-on: ubuntu-latest
