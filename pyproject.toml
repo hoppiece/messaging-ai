@@ -13,12 +13,14 @@ packages = [
 python = "^3.11"
 fastapi = {extras = ["standard"], version = "^0.111.0"}
 
-
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.8"
 pytest = "^8.2.2"
 mypy = "^1.10.0"
 pytest-cov = "^5.0.0"
+
+[tool.poetry.group.dev]
+optional = true
 
 [build-system]
 requires = ["poetry-core"]
