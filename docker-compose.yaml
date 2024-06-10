@@ -1,0 +1,11 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: ["--reload"]
