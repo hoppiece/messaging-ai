@@ -1,3 +1,7 @@
+group "default" {
+    targets = ["api"]
+}
+
 variable "ECR_REGISTRY" {
     default = "$ECR_REGISTRY"
 }
@@ -10,8 +14,9 @@ variable "GITHUB_SHA" {
     default = "$GITHBU_SHA"
 }
 
-target "lambda-image" {
+target "api" {
     push = true
+    context="."
     dockerfile = "Dockerfile"
     target = "runner-lambda"
     tags = [
