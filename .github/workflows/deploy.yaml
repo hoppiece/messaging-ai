@@ -37,7 +37,7 @@ jobs:
       uses: docker/bake-action@v4
       with:
         push: true
-        files: docker-compose.yaml,docker-bake.hcl
+        files: docker-bake.hcl
         set: |
           *.cache-from=type=gha
           *.cache-to=type=gha,mode=max

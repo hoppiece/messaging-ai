@@ -10,8 +10,10 @@ variable "GITHUB_SHA" {
     default = "$GITHBU_SHA"
 }
 
-target "api" {
+target "lambda-image" {
     push = true
+    dockerfile = "Dockerfile"
+    target = "runner-lambda"
     tags = [
         "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest",
         "${ECR_REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}"

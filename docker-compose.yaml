@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: runner
+      target: runner-base
     ports:
       - "8000:8000"
     volumes:
