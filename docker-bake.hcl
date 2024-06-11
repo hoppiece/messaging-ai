@@ -19,6 +19,7 @@ target "api" {
     context="."
     dockerfile = "Dockerfile"
     target = "runner"
+    provenance = false
     tags = [
         "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest",
         "${ECR_REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}"
