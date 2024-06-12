@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api import controller
+from api.controllers import handler
 
 api_router = APIRouter()
-api_router.include_router(controller.router, tags=["health check"])
+api_router.include_router(handler.router, tags=["health check"])
