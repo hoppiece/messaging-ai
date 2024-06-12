@@ -29,7 +29,7 @@ async def get_health() -> models.HealthCheckResponse:
     return models.HealthCheckResponse()
 
 
-@router.post("/")
+@router.post("/callback")
 async def handle_callback(request: Request) -> str:
     signature = request.headers["X-Line-Signature"]
 
