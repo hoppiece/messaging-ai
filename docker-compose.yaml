@@ -8,10 +8,10 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-    command: ["--reload"]
+    command: ["--reload", "--log-level", "debug"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/healthz"]
-      interval: 10s
+      interval: 1m
       timeout: 5s
       retries: 5
       start_period: 5s
@@ -30,7 +30,7 @@ services:
       - ./ngrok.yml:/etc/ngrok.yml
     healthcheck:
       test: /bin/bash -c "</dev/tcp/127.0.0.1/4040"
-      interval: 10s
+      interval: 1m
       timeout: 5s
       retries: 5
       start_period: 5s
