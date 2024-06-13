@@ -21,6 +21,7 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.8.3 /lambda-adapter /opt
 ENV PORT=8000 READINESS_CHECK_PATH=/healthz
 RUN \
   apt-get update && apt-get install --no-install-recommends -y \
+  curl \
   libmariadb-dev \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 USER nobody
