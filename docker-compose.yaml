@@ -9,3 +9,45 @@ services:
     volumes:
       - .:/app
     command: ["--reload"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    ports:
+      - 4040:4040
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml
+    healthcheck:
+      test: /bin/bash -c "</dev/tcp/127.0.0.1/4040"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  update-webhook:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    network_mode: host
+    volumes:
+      - .:/app
+    depends_on:
+      ngrok:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    environment:
+      LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN}
+    entrypoint: ["python", "/app/scripts/update_webhook_url.py"]
