@@ -1,5 +1,5 @@
-from api import models
 from fastapi import APIRouter
+from hygeia import models
 
 router = APIRouter()
 
