@@ -1,8 +1,13 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from hygeia.config import settings
-from hygeia.router import api_router
+from hygeia.controllers import health_check, webhook
+
+api_router = APIRouter()
+api_router.include_router(health_check.router, tags=["health check"])
+api_router.include_router(webhook.router, tags=["webhook"])
+
 
 app = FastAPI()
 app.add_middleware(
