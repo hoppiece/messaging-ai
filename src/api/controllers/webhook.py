@@ -1,7 +1,5 @@
-import os
 from typing import Any
 
-from api import models
 from api.config import settings
 from fastapi import APIRouter, HTTPException, Request
 from linebot.v3 import WebhookHandler  # type: ignore
@@ -24,12 +22,7 @@ line_bot_api = AsyncMessagingApi(async_api_client)
 parser = WebhookParser(settings.LINE_CHANNEL_SECRET)
 
 
-@router.get("/healthz", response_model=models.HealthCheckResponse)
-async def get_health() -> models.HealthCheckResponse:
-    return models.HealthCheckResponse()
-
-
-@router.post("/callback")
+@router.post("/webhook")
 async def handle_callback(request: Request) -> str:
     signature = request.headers["X-Line-Signature"]
 
