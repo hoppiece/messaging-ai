@@ -1,15 +1,14 @@
-# type: ignore
-
 # The async version of linebot.v3.webhook.WebhookHandler
 # Most code is copied from https://github.com/line/line-bot-sdk-python/blob/master/linebot/v3/webhook.py
 import inspect
+from typing import Callable
 
 from linebot.v3.utils import LOGGER, PY3
-from linebot.v3.webhook import WebhookHandler
-from linebot.v3.webhooks import MessageEvent
+from linebot.v3.webhook import WebhookHandler, WebhookPayload
+from linebot.v3.webhooks import Event, MessageEvent
 
 
-class AsyncWebhookHandler(WebhookHandler):
+class AsyncWebhookHandler(WebhookHandler):  # type: ignore [no-any-unimported]
     async def handle(self, body: str, signature: str) -> None:
         """Handle webhook.
 
@@ -34,17 +33,17 @@ class AsyncWebhookHandler(WebhookHandler):
                 func = self._default
 
             if func is None:
-                LOGGER.info("No handler of " + key + " and no default handler")
+                LOGGER.info("No handler of " + str(key) + " and no default handler")
             else:
                 await self.__invoke_func(func, event, payload)
 
     @classmethod
-    async def __invoke_func(
+    async def __invoke_func(  # type: ignore
         cls,
-        func,
-        event,
-        payload,
-    ) -> None:  # type: ignore
+        func: Callable,
+        event: Event,
+        payload: WebhookPayload,
+    ) -> None:
         (has_varargs, args_count) = cls.__get_args_count(func)
         if has_varargs or args_count == 2:
             await func(event, payload.destination)
@@ -53,12 +52,12 @@ class AsyncWebhookHandler(WebhookHandler):
         else:
             await func()
 
-    def __add_handler(self, func, event, message=None):
+    def __add_handler(self, func, event, message=None):  # type: ignore
         key = self.__get_handler_key(event, message=message)
         self._handlers[key] = func
 
     @staticmethod
-    def __get_args_count(func):
+    def __get_args_count(func):  # type: ignore
         if PY3:
             arg_spec = inspect.getfullargspec(func)
             return (arg_spec.varargs is not None, len(arg_spec.args))
@@ -67,7 +66,7 @@ class AsyncWebhookHandler(WebhookHandler):
             return (arg_spec.varargs is not None, len(arg_spec.args))
 
     @staticmethod
-    def __get_handler_key(event, message=None):
+    def __get_handler_key(event, message=None):  # type: ignore
         if message is None:
             return event.__name__
         else:
