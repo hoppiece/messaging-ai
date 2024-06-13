@@ -7,7 +7,7 @@
     tunnels:
     api:
         proto: http
-        addr: api:80
+        addr: api:8000
         host_header: rewrite
   ```
 
