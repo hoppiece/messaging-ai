@@ -1,8 +1,8 @@
 from typing import Generator
 
 import pytest
-from api.main import app
 from fastapi.testclient import TestClient
+from hygeia.main import app
 
 
 @pytest.fixture

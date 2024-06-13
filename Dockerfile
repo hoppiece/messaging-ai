@@ -12,7 +12,7 @@ RUN \
   --mount=type=cache,target=/root/.cache/pypoetry \
   poetry config virtualenvs.create false \
   && poetry install --no-root
-COPY src src
+COPY src/hygeia src/hygeia
 RUN poetry install
 
 
@@ -29,7 +29,7 @@ WORKDIR /app
 COPY --from=base \
   --chown=user:nobody:nogroup \
   /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY src/api src/api
-WORKDIR /app/src/api
+COPY src/hygeia src/hygeia
+WORKDIR /app/src/hygeia
 EXPOSE 8000
 ENTRYPOINT ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

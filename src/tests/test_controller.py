@@ -1,5 +1,5 @@
-from api.models import HealthCheckResponse
 from fastapi.testclient import TestClient
+from hygeia.models import HealthCheckResponse
 
 
 def test_get_health(client: TestClient) -> None:

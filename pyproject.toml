@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 license = "Apache-2.0"
 readme = "README.md"
 packages = [
-    {include = "api", from = "src"}
+    {include = "hygeia", from = "src"}
 ]
 
 [tool.poetry.dependencies]
@@ -43,6 +43,9 @@ check_untyped_defs = true
 warn_return_any = true
 warn_unused_ignores = true
 show_error_codes = true
+
+ignore_missing_imports = true
+
 
 [tool.poetry-dynamic-versioning]
 enable = true
