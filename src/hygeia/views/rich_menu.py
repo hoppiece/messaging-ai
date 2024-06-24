@@ -1,37 +1,61 @@
+import datetime
 from pathlib import Path
 
 import httpx
-from hygeia.botconf import line_bot_api, line_bot_api_blob
-from hygeia.config import settings
 from linebot.v3.messaging.models import (
     MessageAction,
+    PostbackAction,
     RichMenuArea,
     RichMenuBounds,
     RichMenuRequest,
     RichMenuSize,
     URIAction,
 )
+from zoneinfo import ZoneInfo
 
-rich_menu_to_create = RichMenuRequest(
-    size=RichMenuSize(width=2500, height=843),
-    selected=False,
-    name="Main menu",
-    chat_bar_text="Tap here",
-    areas=[
-        RichMenuArea(
-            bounds=RichMenuBounds(x=8, y=0, width=810, height=835),
-            action=URIAction(label="label1", uri="https://line.me"),
-        ),
-        RichMenuArea(
-            bounds=RichMenuBounds(x=848, y=0, width=810, height=835),
-            action=MessageAction(label="label2", text="label2"),
-        ),
-        RichMenuArea(
-            bounds=RichMenuBounds(x=1690, y=0, width=810, height=835),
-            action=MessageAction(label="label3", text="label3"),
-        ),
-    ],
-)
+from hygeia.botconf import line_bot_api, line_bot_api_blob
+from hygeia.config import settings
+
+
+def generate_fillin_text(patient_name: str = "") -> str:
+    report_fillin_text = f"""\
+---
+【業務報告】
+日時: {datetime.datetime.now(ZoneInfo("Asia/Tokyo")).date()}
+患者氏名: {patient_name}
+---
+
+"""
+    return report_fillin_text
+
+
+def generate_rich_menu() -> RichMenuRequest:  # type: ignore[no-any-unimported]
+    rich_menu_to_create = RichMenuRequest(
+        size=RichMenuSize(width=2500, height=843),
+        selected=False,
+        name="Main menu",
+        chat_bar_text="Tap here",
+        areas=[
+            RichMenuArea(
+                bounds=RichMenuBounds(x=8, y=0, width=810, height=835),
+                action=PostbackAction(
+                    label="write_report",
+                    data="actionID=01",
+                    inputOption="openKeyboard",
+                    fillInText=generate_fillin_text(),
+                ),
+            ),
+            RichMenuArea(
+                bounds=RichMenuBounds(x=848, y=0, width=810, height=835),
+                action=MessageAction(label="label2", text="label2"),
+            ),
+            RichMenuArea(
+                bounds=RichMenuBounds(x=1690, y=0, width=810, height=835),
+                action=MessageAction(label="label3", text="label3"),
+            ),
+        ],
+    )
+    return rich_menu_to_create
 
 
 async def delete_rich_menu() -> None:
@@ -42,7 +66,7 @@ async def delete_rich_menu() -> None:
 
 async def set_rich_menu() -> str:
     rich_menu_id_response = await line_bot_api.create_rich_menu(
-        rich_menu_request=rich_menu_to_create
+        rich_menu_request=generate_rich_menu()
     )
     rich_menu_id: str = rich_menu_id_response.rich_menu_id
 
