@@ -25,3 +25,5 @@ dynamodb = boto3.resource(
     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
 )
+
+hygeia_user = dynamodb.Table(settings.TABLE_NAME)
