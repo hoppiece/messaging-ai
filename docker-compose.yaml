@@ -11,10 +11,22 @@ services:
     command: ["--reload", "--log-level", "debug"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/healthz"]
-      interval: 1m
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
+
+    environment:
+      DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
+
+  
+  dynamodb:
+      image: amazon/dynamodb-local
+      command: -jar DynamoDBLocal.jar -sharedDb -dbPath . -optimizeDbBeforeStartup
+      volumes:
+          - dynamodb:/home/dynamodblocal
+      ports:
+          - 8001:8000
 
   ngrok:
     image: ngrok/ngrok:latest
@@ -30,7 +42,7 @@ services:
       - ./ngrok.yml:/etc/ngrok.yml
     healthcheck:
       test: /bin/bash -c "</dev/tcp/127.0.0.1/4040"
-      interval: 1m
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
@@ -51,3 +63,22 @@ services:
     environment:
       LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN}
     entrypoint: ["python", "/app/scripts/update_webhook_url.py"]
+
+  init-db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    command: python /app/src/hygeia/repositories/init_dynamodb.py
+    environment:
+      DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
+    depends_on:
+      - dynamodb
+    profiles:
+      - init
+    volumes:
+      - .:/app
+
+volumes:
+    dynamodb:
+        driver: local
