@@ -38,7 +38,7 @@ class AsyncWebhookHandler(WebhookHandler):  # type: ignore [no-any-unimported]
                 await self.__invoke_func(func, event, payload)
 
     @classmethod
-    async def __invoke_func(  # type: ignore
+    async def __invoke_func(  # type: ignore [no-any-unimported]
         cls,
         func: Callable,
         event: Event,
@@ -52,7 +52,7 @@ class AsyncWebhookHandler(WebhookHandler):  # type: ignore [no-any-unimported]
         else:
             await func()
 
-    def __add_handler(self, func, event, message=None):  # type: ignore
+    def __add_handler(self, func, event, message=None):  # type: ignore [no-untyped-def]
         key = self.__get_handler_key(event, message=message)
         self._handlers[key] = func
 
