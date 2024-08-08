@@ -162,3 +162,5 @@ cython_debug/
 #.idea/
 
 ngrok.yml
+
+.DS_Store

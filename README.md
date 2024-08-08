@@ -29,3 +29,8 @@
   ```
   aws dynamodb scan --table-name hygeia-user --endpoint-url http://localhost:8001
   ```
+
+
+### Troubleshooting
+- `Error response from daemon: network a10b89ed703a0d642faf5af93abc2ac3a767574d1af4b9236d5628092cf72377 not found`
+  - `docker network prune -f`
