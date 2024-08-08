@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from hygeia_ai.main import chain
+from hygeia_ai.service_plan_2 import generate_plan
 from linebot.v3.messaging import (
     FlexMessage,
     PushMessageRequest,
@@ -65,7 +65,24 @@ async def handle_postback(event: PostbackEvent) -> None:  # type: ignore[no-any-
             report.report
             for report in crud.get_patient_reports(hygeia_user, user_id, patient_name)
         ]
-        ai_generated_message = await chain.ainvoke({"user_input", "\n".join(reports)})
-        await line_bot_api.push_message(
-            PushMessageRequest(to=user_id, messages=[TextMessage(text=ai_generated_message)])
-        )
+        generated_plan = generate_plan("\n".join(reports))
+        if generated_plan is not None:
+            if generated_plan.additional_report_request.require_additional_report:
+                await line_bot_api.push_message(
+                    PushMessageRequest(
+                        to=user_id,
+                        messages=[
+                            TextMessage(
+                                text=generated_plan.additional_report_request.question_to_caregiver
+                                + "\n\n追加情報の補足は【業務報告】から行ってください。"
+                            )
+                        ],
+                    )
+                )
+            else:
+                await line_bot_api.push_message(
+                    PushMessageRequest(
+                        to=user_id,
+                        messages=[TextMessage(text=f"{generated_plan}")],
+                    )
+                )
