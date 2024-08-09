@@ -56,7 +56,7 @@ def generate_plan(reports: str) -> CarePlan | None:
 
     completion = client.beta.chat.completions.parse(
         model=model,
-        messages=messages,
+        messages=messages,  # type: ignore
         response_format=CarePlan,
     )
 
