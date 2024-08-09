@@ -8,8 +8,9 @@ from linebot.v3.webhooks import (
     UnfollowEvent,
     UnsendEvent,
 )
+from sqlmodel import Session
 
-from hygeia.botconf import handler, hygeia_user
+from hygeia.botconf import engine, handler
 from hygeia.repositories import crud
 
 logger = getLogger("uvicorn.app")
@@ -26,7 +27,8 @@ async def hadle_unsend(event: UnsendEvent) -> None:  # type: ignore[no-any-unimp
 async def handle_unfollow(event: UnfollowEvent) -> None:  # type: ignore[no-any-unimported]
     logger.info(f"UnfollowEvent. user_id: {event.source.user_id}")
     user_id: str = event.source.user_id
-    crud.delete_user(hygeia_user, user_id)
+    with Session(engine) as session:
+        crud.delete_caregiver(session, user_id)
 
 
 @handler.add(JoinEvent)

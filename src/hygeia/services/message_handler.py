@@ -7,9 +7,10 @@ from linebot.v3.messaging import (
     TextMessage,
 )
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
+from sqlmodel import Session
 
 from hygeia import models
-from hygeia.botconf import handler, hygeia_user, line_bot_api
+from hygeia.botconf import engine, handler, line_bot_api
 from hygeia.config import settings
 from hygeia.repositories import crud
 
@@ -42,32 +43,15 @@ async def message_text(event: MessageEvent) -> None:  # type: ignore[no-any-unim
                 )
             )
         else:
-            patient_report = models.PatientReport(patient_name=patient_name, report=text)
-            crud.insert_patient_report(hygeia_user, user_id, patient_report)
-            crud.set_default_patient(hygeia_user, user_id, patient_name)
-
-        """
-        if patient_name == "":
-            patient_names = crud.get_patient_names(hygeia_user, user_id)
-            patient_names.remove("")
-            if patient_names:
-                canditate_text = f"候補:\n{'\n'.join(patient_names)}"
-            else:
-                canditate_text = ""
-            await line_bot_api.reply_message(
-                ReplyMessageRequest(
-                    reply_token=event.reply_token,
-                    messages=[
-                        TextMessage(
-                            text=f"誰についての報告ですか? 名前を送信してください。{canditate_text}"
-                        ),
-                    ],
+            with Session(engine) as session:
+                patient = crud.get_current_user_patient(session, user_id, patient_name)
+                if patient is None:
+                    patient = crud.create_patient(session, user_id, patient_name)
+                crud.create_care_report(
+                    session, user_id, patient.id, json.dumps({"text": text}, ensure_ascii=False)
                 )
-            )
-            crud.set_user_state(hygeia_user, user_id, models.UserState.input_patient_name)
-        """
 
-    if crud.get_user_state(hygeia_user, user_id) == models.UserState.input_patient_name.value:
-        crud.set_user_state(hygeia_user, user_id, models.UserState.default)
-        new_name = text.strip().replace("様", "").replace("さん", "").strip()
-        crud.rename_patient(hygeia_user, user_id, "", new_name)
+                caregiver = crud.get_caregiver_by_id(session, user_id)
+                if caregiver and caregiver.default_patient_id != patient.id:
+                    # TODO update filled in patient name on the rich menu
+                    crud.set_default_patient(session, user_id, patient.id)
