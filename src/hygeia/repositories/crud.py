@@ -1,109 +1,97 @@
 from typing import Any
 
-from botocore.exceptions import ClientError
 from hygeia import models
+from hygeia.botconf import SessionDep
+from sqlmodel import Session, delete, select
 
 
-def get_item(table: Any, user_id: str) -> dict | None:
-    try:
-        response = table.get_item(Key={"user_id": user_id})
-    except ClientError as e:
-        raise e
-    else:
-        return response.get("Item")  # type: ignore[no-any-return]
+def create_caregiver(
+    session: SessionDep, caregiver_id: str, caregiver_name: str
+) -> models.Caregiver:
+    caregiver = models.Caregiver(id=caregiver_id, name=caregiver_name)
+    session.add(caregiver)
+    session.commit()
+    session.refresh(caregiver)
+    return caregiver
 
 
-def create_user(table: Any, user_id: str) -> dict:
-    response = table.get_item(Key={"user_id": user_id})
-    if response.get("Item"):
-        return response.get("Item")  # type: ignore[no-any-return]
-    else:
-        response = table.put_item(Item=models.User(user_id=user_id).model_dump())
-        return response  # type: ignore[no-any-return]
+def get_caregiver_by_id(session: SessionDep, caregiver_id: str) -> models.Caregiver | None:
+    caregiver = session.exec(
+        select(models.Caregiver).where(models.Caregiver.id == caregiver_id)
+    ).first()
+    return caregiver
 
 
-def delete_user(table: Any, user_id: str) -> None:
-    user = get_item(table=table, user_id=user_id)
-    if user is None:
-        return None
+def get_current_user_patient(
+    session: SessionDep, caregiver_id: str, patient_name: str
+) -> models.Patient | None:
+    patient = session.exec(
+        select(models.Patient).where(
+            models.Patient.name == patient_name, caregiver_id == caregiver_id
+        )
+    ).first()
+    return patient
 
-    table.delete_item(Key={"user_id": user_id})
+
+def list_current_user_patients(session: SessionDep, caregiver_id: str) -> list[models.Patient]:
+    patients = session.exec(
+        select(models.Patient).where(models.Patient.caregiver_id == caregiver_id)
+    ).all()
+    return list(patients)
 
 
-def insert_patient_report(table: Any, user_id: str, report: models.PatientReport) -> dict:
-    response = table.update_item(
-        Key={"user_id": user_id},
-        UpdateExpression="SET patient_reports = list_append(patient_reports, :val)",
-        ExpressionAttributeValues={":val": [report.model_dump()]},
-        ReturnValues="UPDATED_NEW",
+def delete_caregiver(session: SessionDep, caregiver_id: str) -> None:
+    caregiver = session.exec(
+        select(models.Caregiver).where(models.Caregiver.id == caregiver_id)
+    ).one()
+    session.delete(caregiver)
+    session.commit()
+
+
+def create_patient(session: SessionDep, caregiver_id: str, patient_name: str) -> models.Patient:
+    patient = models.Patient(name=patient_name, caregiver_id=caregiver_id)
+    session.add(patient)
+    session.commit()
+    session.refresh(patient)
+    return patient
+
+
+def get_patient_by_id(session: SessionDep, patient_id: int) -> models.Patient | None:
+    patient = session.exec(select(models.Patient).where(models.Patient.id == patient_id)).first()
+    return patient
+
+
+def create_care_report(
+    session: SessionDep, caregiver_id: str, patient_id: int, report: str
+) -> models.CareReport:
+    care_report = models.CareReport(
+        caregiver_id=caregiver_id, patient_id=patient_id, report=report
     )
-    return response  # type: ignore[no-any-return]
+    session.add(care_report)
+    session.commit()
+    session.refresh(care_report)
+    return care_report
 
 
-def get_patient_names(table: Any, user_id: str) -> list[str]:
-    item = get_item(table, user_id)
-    if item is None:
-        return []
-    user = models.User(**item)
-    patient_names = set()
-    for report in user.patient_reports:
-        patient_names.add(report.patient_name)
-    return list(patient_names)
+def set_default_patient(
+    session: SessionDep, caregiver_id: str, patient_id: int
+) -> models.Caregiver:
+    caregiver = session.exec(
+        select(models.Caregiver).where(models.Caregiver.id == caregiver_id)
+    ).one()
+    caregiver.default_patient_id = patient_id
+    session.commit()
+    session.refresh(caregiver)
+    return caregiver
 
 
-def rename_patient(table: Any, user_id: str, current_name: str, new_name: str) -> dict | None:
-    user_data = get_item(table, user_id)
-    if user_data is None:
-        return None
-
-    # patient_reportsリストを取得
-    patient_reports = user_data.get("patient_reports", [])
-
-    # 指定されたcurrent_nameを持つレポートの名前をnew_nameに更新
-    updated_reports = [
-        {**report, "patient_name": new_name} if report["patient_name"] == current_name else report
-        for report in patient_reports
-    ]
-
-    # 更新されたレポートでアイテムをアップデート
-    update_response = table.update_item(
-        Key={"user_id": user_id},
-        UpdateExpression="set patient_reports = :r",
-        ExpressionAttributeValues={":r": updated_reports},
-        ReturnValues="UPDATED_NEW",
-    )
-    return update_response  # type: ignore[no-any-return]
-
-
-def get_user_state(table: Any, user_id: str) -> models.UserState | None:
-    item = get_item(table, user_id)
-    if item is None:
-        return None
-    user = models.User(**item)
-    return user.current_state
-
-
-def set_user_state(table: Any, user_id: str, state: models.UserState) -> dict:
-    response = table.update_item(
-        Key={"user_id": user_id},
-        UpdateExpression="SET current_state = :val1",
-        ExpressionAttributeValues={":val1": state.value},
-    )
-    return response  # type: ignore[no-any-return]
-
-
-def set_default_patient(table: Any, user_id: str, patient_name: str) -> dict:
-    response = table.update_item(
-        Key={"user_id": user_id},
-        UpdateExpression="SET default_patient = :val1",
-        ExpressionAttributeValues={":val1": patient_name},
-    )
-    return response  # type: ignore[no-any-return]
-
-
-def get_patient_reports(table: Any, user_id: str, patient_name: str) -> list[models.PatientReport]:
-    item = get_item(table, user_id)
-    if item is None:
-        return []
-    user = models.User(**item)
-    return [report for report in user.patient_reports if report.patient_name == patient_name]
+def list_care_reports(
+    session: SessionDep, caregiver_id: str, patient_id: int
+) -> list[models.CareReport]:
+    care_reports = session.exec(
+        select(models.CareReport).where(
+            models.CareReport.caregiver_id == caregiver_id,
+            models.CareReport.patient_id == patient_id,
+        )
+    ).all()
+    return list(care_reports)

@@ -21,6 +21,12 @@ python-dotenv = "^1.0.1"
 logzero = "^1.7.0"
 boto3 = "^1.34.131"
 boto3-stubs = "^1.34.131"
+sqlmodel = "^0.0.21"
+pymysql = "^1.1.1"
+mysqlclient = "^2.2.4"
+types-mysqlclient = "^2.2.0.20240311"
+sqlalchemy = "^2.0.32"
+alembic = "^1.13.2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.8"

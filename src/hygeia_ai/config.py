@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     AWS_DEFAULT_REGION: str | None = None
     AWS_ACCESS_KEY_ID: str | None = None
     AWS_SECRET_ACCESS_KEY: str | None = None
+    MYSQL_SERVER: str | None = None
+    MYSQL_USER: str | None = None
+    MYSQL_PORT: int | None = None
+    MYSQL_PASSWORD: str | None = None
+    MYSQL_DATABASE: str | None = None
 
 
 settings = Settings()  # type: ignore
