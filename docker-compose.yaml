@@ -16,17 +16,6 @@ services:
       retries: 5
       start_period: 5s
 
-    environment:
-      DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
-
-  
-  dynamodb:
-      image: amazon/dynamodb-local
-      command: -jar DynamoDBLocal.jar -sharedDb -dbPath . -optimizeDbBeforeStartup
-      volumes:
-          - dynamodb:/home/dynamodblocal
-      ports:
-          - 8001:8000
 
   ngrok:
     image: ngrok/ngrok:latest
@@ -64,21 +53,33 @@ services:
       LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN}
     entrypoint: ["python", "/app/scripts/update_webhook_url.py"]
 
+  mysql:
+    image: mysql:8.0
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
   init-db:
     build:
       context: .
       dockerfile: Dockerfile
-      target: base
-    command: python /app/src/hygeia/repositories/init_dynamodb.py
-    environment:
-      DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
-    depends_on:
-      - dynamodb
-    profiles:
-      - init
+      target: runner
+    profiles: ["init"]
     volumes:
       - .:/app
+    depends_on:
+      - mysql
+    entrypoint: ["python", "/app/src/hygeia/repositories/init_db.py"]
+
+
+
 
 volumes:
-    dynamodb:
-        driver: local
+  mysql-data:

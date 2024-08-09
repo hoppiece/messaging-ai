@@ -5,7 +5,7 @@ from hygeia.config import settings
 
 def create_table_dynamodb_local() -> None:
     table = dynamodb.create_table(
-        TableName="hygeia-user",
+        TableName="primary-table",
         KeySchema=[
             {
                 "AttributeName": "user_id",
