@@ -5,8 +5,9 @@ from linebot.v3.messaging import (
     TextMessage,
 )
 from linebot.v3.webhooks import FollowEvent
+from sqlmodel import Session
 
-from hygeia.botconf import handler, hygeia_user, line_bot_api
+from hygeia.botconf import engine, handler, line_bot_api
 from hygeia.repositories import crud
 
 logger = getLogger("uvicorn.app")
@@ -29,4 +30,6 @@ async def handle_follow(event: FollowEvent) -> None:  # type: ignore[no-any-unim
         )
     )
     user_id: str = event.source.user_id
-    crud.create_user(hygeia_user, user_id)
+    user_name: str = user_profile.display_name
+    with Session(engine) as session:
+        crud.create_caregiver(session, user_id, user_name)

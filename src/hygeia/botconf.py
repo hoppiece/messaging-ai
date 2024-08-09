@@ -1,10 +1,13 @@
-import boto3
+from typing import Annotated, Generator
+
+from fastapi import Depends
 from linebot.v3.messaging import (
     AsyncApiClient,
     AsyncMessagingApi,
     AsyncMessagingApiBlob,
     Configuration,
 )
+from sqlmodel import Session, SQLModel, create_engine
 
 from hygeia.config import settings
 
@@ -18,15 +21,12 @@ line_bot_api_blob = AsyncMessagingApiBlob(
     AsyncApiClient(Configuration(access_token=settings.LINE_CHANNEL_ACCESS_TOKEN))
 )
 
-if settings.DYNAMODB_ENDPOINT_URL is None:  # Prod
-    dynamodb = boto3.resource("dynamodb")
-else:
-    dynamodb = boto3.resource(
-        "dynamodb",
-        region_name=settings.AWS_DEFAULT_REGION,
-        endpoint_url=settings.DYNAMODB_ENDPOINT_URL,
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-    )
+engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
-hygeia_user = dynamodb.Table(settings.TABLE_NAME)
+
+def get_db() -> Generator[Session, None, None]:
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_db)]

@@ -35,3 +35,4 @@ COPY src/hygeia_ai src/hygeia_ai
 WORKDIR /app/src/hygeia
 EXPOSE 8000
 ENTRYPOINT ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+

@@ -1,6 +1,8 @@
+import datetime
 from decimal import Decimal
 from enum import Enum
 
+import sqlmodel
 from pydantic import BaseModel, Field, field_serializer
 
 
@@ -12,11 +14,6 @@ class RichmenuCreateResponse(BaseModel):
     rich_menu_id: str
 
 
-class PatientReport(BaseModel):
-    patient_name: str
-    report: str
-
-
 class UserState(Enum):
     default = Decimal(0)
 
@@ -25,20 +22,6 @@ class UserState(Enum):
 
     # ユーザーがpatient_nameを選択中
     select_patient_name = Decimal(10)
-
-
-class User(BaseModel):
-    user_id: str
-    patient_reports: list[PatientReport] = Field(default_factory=list)
-    current_state: UserState = Field(default=UserState.default)
-    default_patient: str = Field(default="")
-
-    class Config:
-        use_enum_values = True
-
-    @field_serializer("current_state")
-    def serialize_dt(self, current_state: UserState) -> Decimal:
-        return current_state.value
 
 
 class BotAction(Enum):
@@ -61,3 +44,33 @@ class PostBackActionData(BaseModel):
 
 class SelectName(PostBackActionData):
     patient_name: str
+
+
+class Caregiver(sqlmodel.SQLModel, table=True):
+    class Config:
+        use_enum_values = True
+
+    __table_args__ = {"mysql_charset": "utf8mb4", "mysql_collate": "utf8mb4_0900_ai_ci"}
+    id: str = sqlmodel.Field(primary_key=True)  # line_user_id
+    name: str
+    current_state: UserState = sqlmodel.Field(default=UserState.default)
+    default_patient_id: int = sqlmodel.Field(default=None, foreign_key="patient.id", nullable=True)
+
+
+class Patient(sqlmodel.SQLModel, table=True):
+    __table_args__ = {"mysql_charset": "utf8mb4", "mysql_collate": "utf8mb4_0900_ai_ci"}
+    id: int = sqlmodel.Field(
+        default=None,
+        primary_key=True,
+    )
+    name: str = sqlmodel.Field(nullable=False)
+    caregiver_id: str = sqlmodel.Field(foreign_key="caregiver.id")
+
+
+class CareReport(sqlmodel.SQLModel, table=True):
+    __table_args__ = {"mysql_charset": "utf8mb4", "mysql_collate": "utf8mb4_0900_ai_ci"}
+    id: int = sqlmodel.Field(default=None, primary_key=True)
+    created_at: datetime.datetime = sqlmodel.Field(default_factory=datetime.datetime.now)
+    caregiver_id: str = sqlmodel.Field(foreign_key="caregiver.id")
+    patient_id: int = sqlmodel.Field(foreign_key="patient.id")
+    report: str = sqlmodel.Field()  # json strings
