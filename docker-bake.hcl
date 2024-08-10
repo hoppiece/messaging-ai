@@ -7,7 +7,7 @@ variable "ECR_REGISTRY" {
 }
 
 variable "ECR_REPOSITORY" {
-    default = "zato-poc"
+    default = "carechat-ecr-repo"
 }
 
 variable "GITHUB_SHA" {
