@@ -7,7 +7,7 @@ DOTENV_PATH = os.path.join(os.path.dirname(__file__), "../../.env")
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=DOTENV_PATH)
-    OPENAI_API_KEY: str | None = None
+    OPENAI_API_KEY: str
 
     # Above does not use in hygeia_ai
     LINE_CHANNEL_SECRET: str | None = None

@@ -10,16 +10,16 @@ DOTENV_PATH = os.path.join(os.path.dirname(__file__), "../../.env")
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=DOTENV_PATH)
 
-    LINE_CHANNEL_SECRET: str | None = None
-    LINE_CHANNEL_ACCESS_TOKEN: str | None = None
+    LINE_CHANNEL_SECRET: str
+    LINE_CHANNEL_ACCESS_TOKEN: str
 
     CORS_ALLOW_ORIGIN: str = "*"
 
     MYSQL_SERVER: str = "mysql"
-    MYSQL_USER: str
+    MYSQL_USER: str = "user"
     MYSQL_PORT: int = 3306
-    MYSQL_PASSWORD: str
-    MYSQL_DATABASE: str
+    MYSQL_PASSWORD: str = "password"
+    MYSQL_DATABASE: str = "hygeia"
 
     @computed_field  # type: ignore
     @property
