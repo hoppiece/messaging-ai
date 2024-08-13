@@ -15,6 +15,7 @@ from sqlmodel import Session
 from hygeia import models
 from hygeia.botconf import engine, handler, line_bot_api
 from hygeia.repositories import crud
+from hygeia.utils.spread_sheets_exporter import export_sheet
 from hygeia.views.patient_name_selector import generate_patient_names_flex_bubble
 
 logger = getLogger("uvicorn.app")
@@ -55,14 +56,7 @@ async def handle_postback(event: PostbackEvent) -> None:  # type: ignore[no-any-
 
     if data.action_id == models.BotAction.select_patient_name.value:
         patient_name = models.SelectName.model_validate_json(event.postback.data).patient_name
-        await line_bot_api.reply_message(
-            ReplyMessageRequest(
-                reply_token=event.reply_token,
-                messages=[
-                    TextMessage(text="ケアプラン作成中"),
-                ],
-            )
-        )
+
         await line_bot_api.show_loading_animation(ShowLoadingAnimationRequest(chatId=chat_id))
 
         with Session(engine) as session:
@@ -74,6 +68,8 @@ async def handle_postback(event: PostbackEvent) -> None:  # type: ignore[no-any-
             reports = [json.loads(report.report).get("text") for report in patient_report_objects]
 
         generated_plan = generate_plan("\n".join(reports))
+
+        logger.info(generated_plan.model_dump_json())  # TODO changet to debug level
         if generated_plan is not None:
             if generated_plan.additional_report_request.require_additional_report:
                 await line_bot_api.push_message(
@@ -91,6 +87,20 @@ async def handle_postback(event: PostbackEvent) -> None:  # type: ignore[no-any-
                 await line_bot_api.push_message(
                     PushMessageRequest(
                         to=user_id,
-                        messages=[TextMessage(text=f"{generated_plan}")],
+                        messages=[
+                            TextMessage(text="ケアプラン作成中"),
+                        ],
+                    )
+                )
+                await line_bot_api.show_loading_animation(
+                    ShowLoadingAnimationRequest(chatId=chat_id)
+                )
+
+                generated_sheet_url = export_sheet(patient_name, generated_plan)
+
+                await line_bot_api.push_message(
+                    PushMessageRequest(
+                        to=user_id,
+                        messages=[TextMessage(text=f"ケアプランURL: {generated_sheet_url}")],
                     )
                 )

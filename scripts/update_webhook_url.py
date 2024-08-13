@@ -18,7 +18,7 @@ def get_ngrok_url() -> str | None:
         tunnels = response.json().get("tunnels", [])
         for tunnel in tunnels:
             if tunnel["proto"] == "https":
-                return tunnel.get("public_url")
+                return tunnel.get("public_url")  # type: ignore
     return None
 
 

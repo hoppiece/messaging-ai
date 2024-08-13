@@ -8,6 +8,9 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+      - .key.json:/app/src/hygeia/utils/.key.json
+    environment:
+      email_address: ${email_address}
     command: ["--reload", "--log-level", "debug"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/healthz"]
