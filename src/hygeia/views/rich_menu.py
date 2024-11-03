@@ -1,5 +1,6 @@
 import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import httpx
 from linebot.v3.messaging.models import (
@@ -10,10 +11,9 @@ from linebot.v3.messaging.models import (
     RichMenuRequest,
     RichMenuSize,
 )
-from zoneinfo import ZoneInfo
 
 from hygeia import models
-from hygeia.botconf import line_bot_api, line_bot_api_blob
+from hygeia.botconf import line_bot_api
 from hygeia.config import settings
 
 

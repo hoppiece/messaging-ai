@@ -1,9 +1,6 @@
 from logging import getLogger
 
-from linebot.v3.messaging import (
-    ReplyMessageRequest,
-    TextMessage,
-)
+from linebot.v3.messaging import ReplyMessageRequest, TextMessage
 from linebot.v3.webhooks import FollowEvent
 from sqlmodel import Session
 

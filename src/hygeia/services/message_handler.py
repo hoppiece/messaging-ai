@@ -1,17 +1,11 @@
 import json
 from logging import getLogger
 
-from botocore.exceptions import ClientError
-from linebot.v3.messaging import (
-    ReplyMessageRequest,
-    TextMessage,
-)
+from linebot.v3.messaging import ReplyMessageRequest, TextMessage
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
 from sqlmodel import Session
 
-from hygeia import models
 from hygeia.botconf import engine, handler, line_bot_api
-from hygeia.config import settings
 from hygeia.repositories import crud
 
 logger = getLogger("uvicorn.app")
@@ -37,7 +31,7 @@ async def message_text(event: MessageEvent) -> None:  # type: ignore[no-any-unim
                     reply_token=event.reply_token,
                     messages=[
                         TextMessage(
-                            text=f"患者名を入力する必要があります。もう一度業務報告を作成してください。"
+                            text="患者名を入力する必要があります。もう一度業務報告を作成してください。"
                         ),
                     ],
                 )

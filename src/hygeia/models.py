@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import Enum
 
 import sqlmodel
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel
 
 
 class HealthCheckResponse(BaseModel):

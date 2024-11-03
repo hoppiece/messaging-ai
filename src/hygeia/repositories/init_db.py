@@ -1,6 +1,7 @@
-from hygeia import models
-from hygeia.botconf import engine
 from sqlmodel import SQLModel
+
+from hygeia import models  # noqa
+from hygeia.botconf import engine
 
 
 def create_db_and_tables() -> None:

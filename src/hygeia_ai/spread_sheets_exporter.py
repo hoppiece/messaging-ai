@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import gspread
-import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 
 from hygeia_ai.service_plan_2 import CarePlan

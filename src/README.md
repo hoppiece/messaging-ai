@@ -1,0 +1,4 @@
+- hygeia module
+  - LINE bot のサーバ
+- hygeia_ai
+  - AI 機能とつなぐサーバ

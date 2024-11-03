@@ -2,8 +2,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from hygeia_ai.config import settings
-
 # OpenAI LLM Instance
 llm = ChatOpenAI(model_name="gpt-4o", temperature=0.5)  # type: ignore
 

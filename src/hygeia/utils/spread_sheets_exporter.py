@@ -2,9 +2,9 @@ import os
 from pathlib import Path
 
 import gspread
-import pandas as pd
-from hygeia_ai.service_plan_2 import CarePlan
 from oauth2client.service_account import ServiceAccountCredentials
+
+from hygeia_ai.service_plan_2 import CarePlan
 
 # Load your service account credentials
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]

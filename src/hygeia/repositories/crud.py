@@ -1,8 +1,7 @@
-from typing import Any
+from sqlmodel import select
 
 from hygeia import models
 from hygeia.botconf import SessionDep
-from sqlmodel import Session, delete, select
 
 
 def create_caregiver(
@@ -94,4 +93,5 @@ def list_care_reports(
             models.CareReport.patient_id == patient_id,
         )
     ).all()
+    return list(care_reports)
     return list(care_reports)
