@@ -8,9 +8,9 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-      - .key.json:/app/src/hygeia/utils/.key.json
+      - .key.json:/app/src/hygeia_ai/.key.json
     environment:
-      email_address: ${email_address}
+      email_address: hop
     command: ["--reload", "--log-level", "debug"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/healthz"]
@@ -60,10 +60,16 @@ services:
     image: mysql:8.0
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-hygeia}
+      MYSQL_USER: "${MYSQL_USER:-user}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD:-password}"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     ports:
       - "3306:3306"
     volumes:
@@ -78,10 +84,9 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     entrypoint: ["python", "/app/src/hygeia/repositories/init_db.py"]
-
-
 
 
 volumes:

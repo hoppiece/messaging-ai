@@ -2,6 +2,7 @@ import json
 from logging import getLogger
 
 from hygeia_ai.service_plan_2 import generate_plan
+from hygeia_ai.spread_sheets_exporter import export_sheet
 from linebot.v3.messaging import (
     FlexMessage,
     PushMessageRequest,
@@ -15,7 +16,6 @@ from sqlmodel import Session
 from hygeia import models
 from hygeia.botconf import engine, handler, line_bot_api
 from hygeia.repositories import crud
-from hygeia.utils.spread_sheets_exporter import export_sheet
 from hygeia.views.patient_name_selector import generate_patient_names_flex_bubble
 
 logger = getLogger("uvicorn.app")
