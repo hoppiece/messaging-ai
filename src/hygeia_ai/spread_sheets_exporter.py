@@ -34,19 +34,19 @@ def map_sheet(wks: gspread.Worksheet, careplan_obj: CarePlan) -> gspread.Workshe
         長期目標 = issue.long_term_goal
         長期目標に向けた期限 = issue.due_date_for_long_term_goal
         # insert patient_problem to A10:B17
-        wks.update(cell_生活上の課題[issue_idx], [[生活上の課題]])
-        wks.update(cell_長期目標[issue_idx], [[長期目標]])
-        wks.update(cell_長期目標に向けた期限[issue_idx], [[長期目標に向けた期限]])
+        wks.update(cell_生活上の課題[issue_idx], [[生活上の課題]])  # type: ignore
+        wks.update(cell_長期目標[issue_idx], [[長期目標]])  # type: ignore
+        wks.update(cell_長期目標に向けた期限[issue_idx], [[長期目標に向けた期限]])  # type: ignore
         insert_count = 0
         for plan_idx, plan in enumerate(issue.plans):
             短期目標 = plan.short_term_goal
             短期目標に向けた期限 = plan.due_date_for_short_term_goal
             サービス内容 = plan.action
             サポート頻度 = plan.frequency
-            wks.update(cell_短期目標[insert_count], [[短期目標]])
-            wks.update(cell_短期目標に向けた期限[insert_count], [[短期目標に向けた期限]])
-            wks.update(cell_サービス内容[insert_count], [[サービス内容]])
-            wks.update(cell_サポート頻度[insert_count], [[サポート頻度]])
+            wks.update(cell_短期目標[insert_count], [[短期目標]])  # type: ignore
+            wks.update(cell_短期目標に向けた期限[insert_count], [[短期目標に向けた期限]])  # type: ignore
+            wks.update(cell_サービス内容[insert_count], [[サービス内容]])  # type: ignore
+            wks.update(cell_サポート頻度[insert_count], [[サポート頻度]])  # type: ignore
             insert_count += 1
 
     return wks
